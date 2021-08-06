@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify, render_template
+# from threading import thread
 # import models
 # import config
 import datetime
 # import const
 # import logging
 import json
+import requests
+
 
 app = Flask(__name__)
 
@@ -42,6 +45,13 @@ def points():
 	# for k in struct:
 		# if k in p_lst:
 			# print(struct[k])
+	res = requests.get("https://geocode-maps.yandex.ru/1.x?apikey=063a0509-ec40-4683-b6e3-cdd341b15416&geocode=%s&results=5&format=json" % p_lst[0], headers={'User-Agent': 'curl/7.78.0',
+'Accept': '*/*'})
+	# res = requests.get("http://localhost:4000/")
+	# print(dir(res))
+	print(res.text)
+	# print(res.json)
+	# print(res.content)
 	res_pts = []
 	for p in p_lst:
 		try:
