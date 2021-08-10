@@ -109,6 +109,7 @@
                 //Тип маршрутизации - пешеходная маршрутизация.
                 routingMode: 'pedestrian'
                 // routingMode: 'bycicile'
+                // FIXME: Yandex Maps API can not create route on roads that exists on map!!!
             }
 		}, {
 		    boundsAutoApply: true
