@@ -50,7 +50,7 @@ def points():
 	txt = open('data.json', 'r')
 	pts_data = open('points.txt', 'r').read()
 	struct = json.load(txt)
-	p_lst = pts_data.split(';')[2:4]
+	p_lst = pts_data.split(';')
 
 	res_pts = []
 	idxs = []
