@@ -6,8 +6,9 @@
 	ymaps.ready(init).then(function() {
 		console.log('Ready.');
 	});
-    function getCoordsDiffPts(obj) { // works with diffPts format
-        return Object.values(Object.values(obj)[0][0])[0]; //array
+    function getCoordsDiffPts(obj, i) { // works with diffPts format
+        let count = Object.values(Object.values(obj)[0]).length;
+        return Object.values(Object.values(obj)[0][i])[0]; //array
     }
     async function init(){
         myMap = new ymaps.Map("ymaps", {
@@ -49,7 +50,7 @@
                 let coordsArr = Object.values(ptsData["diffPts"][key]);
                 let obj = {};
                 for (let i = 0; i < coordsArr.length; i++) {
-                    console.log(Object.values(coordsArr[i]));
+                    //console.log(Object.values(coordsArr[i]));
                     placemarks.push(
                         new ymaps.Placemark(Object.values(coordsArr[i])[0], {
                             hintContent: Object.keys(coordsArr[i])[0],
@@ -63,7 +64,7 @@
                     // obj[key] = {
                     //     [innerKey]: Object.values(coordsArr[i])[0]
                     // };
-                    console.log(Object.keys(coordsArr[i])[0]);
+                    //console.log(Object.keys(coordsArr[i])[0]);
                 };
                 // diffPts.push(obj);
                 j++;
@@ -109,9 +110,16 @@
 
     function removePlacemark(e) {
         for (let j = 0; j < diffPts.length; j++) {
-            //diffPts[i];
-            if (getCoordsDiffPts(diffPts[j]) === e.originalEvent.target.geometry.getCoordinates());
-                console.log(diffPts[j]);
+            let coords_arr = Object.values(Object.values(diffPts[j])[0]);
+            let coords_cnt = Object.values(Object.values(diffPts[j])[0]).length
+            for (var i = 0; i < coords_cnt; i++) {
+                if (Object.values(coords_arr[i])[0] === e.originalEvent.target.geometry.getCoordinates()) {
+                    console.log(coords_arr[i]);
+                    console.log(e.originalEvent.target.geometry.getCoordinates());
+                    // TODO: remove point if it was clicked and its coordinates found in diffPts array
+                    // OR remove point by clicking close on baloon?
+                }
+            }
         }
     }
     async function load_pts() {
