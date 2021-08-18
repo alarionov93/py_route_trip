@@ -34,18 +34,23 @@ def get_coords(res_pts, idx, q):
 	except IndexError:
 		print(idx, res_pts)
 		raise Exception("[ERROR]: Index of res_pts is out of range!")
+	counter = 0
+	data = ""
 	for lst_elem in parse_dict(res):
+		counter += 1
 		try:
 			kind = lst_elem['GeoObject']['metaDataProperty']['GeocoderMetaData']['kind']
 			name = lst_elem['GeoObject']['name']
 			if kind != 'hydro':
-				q.put((idx, [lst_elem['GeoObject']['Point']['pos'].split(' ')[1], lst_elem['GeoObject']['Point']['pos'].split(' ')[0]]))
-				print(name)
-				print("Lat: %s, Lon: %s" % (lst_elem['GeoObject']['Point']['pos'].split(' ')[1], lst_elem['GeoObject']['Point']['pos'].split(' ')[0]))
-			else:
+				q.put((idx, name, [lst_elem['GeoObject']['Point']['pos'].split(' ')[1], lst_elem['GeoObject']['Point']['pos'].split(' ')[0]]))
+				meta = "Lat: %s, Lon: %s" % (lst_elem['GeoObject']['Point']['pos'].split(' ')[1], lst_elem['GeoObject']['Point']['pos'].split(' ')[0])
+				data += name + meta
+				# print(name)
 		except KeyError:
 			print("[ERROR]: Can not get some keys!")
 
+	open("res_%s.txt" % res_pts[idx], "w").write(data)
+	# print(counter)
 
 @app.route("/get_pts", methods=['GET'])
 def points():
@@ -77,15 +82,37 @@ def points():
 	for t in threads:
 		t.join()
 
+
+	# print(res_pts[2])
+	diff_pts = {}
+	last_idx = idxs[0]
+	pt_name = res_pts[idxs[0]] # this is beacause of line res_pts[idx] = res! (rewriting res_pts[idx]!!!)
 	try:
+		variants_by_name = []
 		while 1:
-			idx, res = q.get(timeout=1)
+			idx, name, res = q.get(timeout=1)
+
+			# print(idx, res)
+			# print(res_pts[idx])
+			# print(idx, res)
+			# this line (below) makes it only one result (it's always the last)
+			if last_idx != idx:
+				variants_by_name = []
+				pt_name = res_pts[idx] # this is beacause of line res_pts[idx] = res! (rewriting res_pts[idx]!!!)
+				last_idx = idx
+			else:
+				variants_by_name.append({name: res})
+				diff_pts.update({pt_name: variants_by_name})
+
 			res_pts[idx] = res
-			# print(res_pts)
 	except Empty:
 		print("Фсё кончилось...")
+	except TypeError:
+		print(res_pts[idx])
 
-	return json.dumps(res_pts, ensure_ascii=0)
+	# print(diff_pts)
+
+	return json.dumps({"ref_pts": res_pts, "diff_pts": diff_pts}, ensure_ascii=0)
 
 
 
