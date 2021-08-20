@@ -30,21 +30,24 @@ def get_coords(res_pts, idx, q):
 		
 		return parse_dict(elem)
 	try:
-		res = requests.get("https://geocode-maps.yandex.ru/1.x?apikey=063a0509-ec40-4683-b6e3-cdd341b15416&geocode=%s&results=5&format=json" % res_pts[idx], headers={'User-Agent': 'curl/7.78.0', 'Accept': '*/*'}).json()
+		res = requests.get("https://geocode-maps.yandex.ru/1.x?apikey=063a0509-ec40-4683-b6e3-cdd341b15416&geocode=%s&results=10&format=json" % res_pts[idx], headers={'User-Agent': 'curl/7.78.0', 'Accept': '*/*'}).json()
+		open("res_%s.json" % res_pts[idx], "w").write(json.dumps(res, ensure_ascii=0))
 	except IndexError:
 		print(idx, res_pts)
 		raise Exception("[ERROR]: Index of res_pts is out of range!")
 	counter = 0
 	data = ""
 	for lst_elem in parse_dict(res):
+		# print(lst_elem)
+		# print('--------------------------------------')
 		counter += 1
 		try:
 			kind = lst_elem['GeoObject']['metaDataProperty']['GeocoderMetaData']['kind']
 			name = lst_elem['GeoObject']['name']
-			if kind != 'hydro':
-				q.put((idx, name, [lst_elem['GeoObject']['Point']['pos'].split(' ')[1], lst_elem['GeoObject']['Point']['pos'].split(' ')[0]]))
-				meta = "Lat: %s, Lon: %s" % (lst_elem['GeoObject']['Point']['pos'].split(' ')[1], lst_elem['GeoObject']['Point']['pos'].split(' ')[0])
-				data += name + meta
+			# if kind != 'hydro':
+			q.put((idx, name, [lst_elem['GeoObject']['Point']['pos'].split(' ')[1], lst_elem['GeoObject']['Point']['pos'].split(' ')[0]]))
+			meta = "Lat: %s, Lon: %s" % (lst_elem['GeoObject']['Point']['pos'].split(' ')[1], lst_elem['GeoObject']['Point']['pos'].split(' ')[0])
+			data += name + meta
 				# print(name)
 		except KeyError:
 			print("[ERROR]: Can not get some keys!")
